@@ -147,6 +147,12 @@ public class MainActivity extends Activity {
         finish();
     }
 
+    public void mOnClickSettings(View v){
+        Intent intent = new Intent(this, SettingsActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+    }
+
     public void mOnClickCancel(View v){
         Preference pref = Preference.getInstance(this, Preference.PREF_SETTINGS);
         pref.put("Auth", false);

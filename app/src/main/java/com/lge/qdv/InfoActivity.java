@@ -63,8 +63,7 @@ public class InfoActivity extends Activity {
                     if(mDeviceInfo.getLMK() >= 0)
                         mTvLMK.setText("LMK:" + mDeviceInfo.getLMK() + "(" + diff.dLMK + ")");
 
-                    Log.d(IQDV.TAG, mDeviceInfo.toString(mPrevDeviceInfo));
-                    saveInfo(diff);
+
                     break;
                 default:
                     break;
@@ -141,6 +140,11 @@ public class InfoActivity extends Activity {
             @Override
             public void run() {
                 mDeviceInfo = new DeviceInfo(mHandler);
+
+                DeviceInfoDiff diff = mDeviceInfo.getDiff(mPrevDeviceInfo);
+                Log.d(IQDV.TAG, mDeviceInfo.toString(mPrevDeviceInfo));
+                saveInfo(diff);
+
                 mHandler.sendEmptyMessage(IQDV.MSG_UPDATE_DEVICE_INFO);
                 mHandler.sendEmptyMessage(IQDV.MSG_CLOSE_DIALOG);
             }
@@ -168,11 +172,12 @@ public class InfoActivity extends Activity {
             out = new PrintWriter(new BufferedWriter(fw));
 
             out.println("#");
-            out.println(mTvTimeInfo.getText().toString());
-            out.println(mTvMemFreeCached.getText().toString());
-            out.println(mTvFreeMem.getText().toString());
-            out.println(mTvXoTherm.getText().toString());
-            out.println(mTvLMK.getText().toString());
+            out.println(TimeUtils.getDateTime(mDeviceInfo.getTimeStamp()) + "(" + TimeUtils.getTimeUnit(diff.dTimeStamp) + ")" );
+            out.println("MemFree:" + mDeviceInfo.getMemFree()/1024 + "(" + diff.dMemFree/1024 + "), Cached:" + mDeviceInfo.getCached()/1024 + "(" + diff.dCached/1024 + ")");
+            out.println("Free Memory:" + (mDeviceInfo.getMemFree()/1024 + mDeviceInfo.getCached()/1024) +  "(" + diff.dFreeMem/1024 + ")");
+            out.println("XO_THERM:" + mDeviceInfo.getXoTherm() + "(" + diff.dXoTherm + ")");
+            if(mDeviceInfo.getLMK() >= 0)
+                out.println("LMK:" + mDeviceInfo.getLMK() + "(" + diff.dLMK + ")");
             out.println("$");
 
         } catch(IOException ioe) {
