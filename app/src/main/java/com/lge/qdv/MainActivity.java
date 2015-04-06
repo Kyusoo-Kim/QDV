@@ -66,7 +66,7 @@ public class MainActivity extends Activity {
         } else {
             AlertDialog.Builder builder =
             new AlertDialog.Builder(MainActivity.this)
-                    .setTitle("Password")
+                    .setTitle("Authentication")
                     .setMessage("Please input password")
                     .setView(linear)
                     .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
