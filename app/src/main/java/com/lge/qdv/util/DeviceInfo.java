@@ -289,17 +289,17 @@ public class DeviceInfo {
 
     @Override
     public String toString() {
-        return new StringBuilder()
-                .append(TimeUtils.getDateTime(mTimeStamp))
-                .append("\n")
-                .append("MemFree:" + mMemFree + ", Cached: " + mCached)
-                .append("\n")
-                .append("FreeMem:" + mFreeMem )
-                .append("\n")
-                .append("XO_Therm:" + mXoTherm)
-                .append("\n")
-                .append("LMK:" + mLMK)
-                .toString();
+        StringBuilder sb = new StringBuilder();
+        sb.append(TimeUtils.getDateTime(mTimeStamp) + "\n");
+        sb.append("MemFree:" + mMemFree + ", Cached: " + mCached + "\n");
+        sb.append("FreeMem:" + mFreeMem + "\n");
+        sb.append("XO_Therm:" + mXoTherm + "\n");
+        if(mLMK >= 0)
+            sb.append("LMK:" + mLMK);
+        else
+            sb.append(mErrorMessage);
+
+        return sb.toString();
     }
 
     public String toString(DeviceInfo prev){
@@ -315,17 +315,17 @@ public class DeviceInfo {
         int dXoTherm = this.mXoTherm - prev.mXoTherm;
         int dLMK = this.mLMK - prev.mLMK;
 
-        return new StringBuilder()
-                .append(TimeUtils.getDateTime(mTimeStamp) + "(" + dTime + ")")
-                .append("\n")
-                .append("MemFree:" + mMemFree + "(" + dMemFree + "), Cached:" + mCached + "(" + dCached + ")")
-                .append("\n")
-                .append("FreeMem:" + mFreeMem + "(" + dFreeMem + ")")
-                .append("\n")
-                .append("XO_THERM:" + mXoTherm + "(" + dXoTherm + ")")
-                .append("\n")
-                .append("LMK:" + mLMK + "(" + dLMK + ")")
-                .toString();
+        StringBuilder sb = new StringBuilder();
+        sb.append(TimeUtils.getDateTime(mTimeStamp) + "(" + dTime + ")\n");
+        sb.append("MemFree:" + mMemFree + "(" + dMemFree + "), Cached:" + mCached + "(" + dCached + ")\n");
+        sb.append("FreeMem:" + mFreeMem + "(" + dFreeMem + ")\n");
+        sb.append("XO_THERM:" + mXoTherm + "(" + dXoTherm + ")\n");
+        if(mLMK >= 0)
+            sb.append("LMK:" + mLMK + "(" + dLMK + ")");
+        else
+            sb.append(mErrorMessage);
+
+        return sb.toString();
     }
 
     public DeviceInfoDiff getDiff(DeviceInfo prev) {
