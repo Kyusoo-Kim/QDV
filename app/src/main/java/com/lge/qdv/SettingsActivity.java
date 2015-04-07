@@ -1,21 +1,38 @@
 package com.lge.qdv;
 
 import android.app.Activity;
+import android.os.Build;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
+
+import com.lge.qdv.preference.Preference;
+import com.lge.qdv.util.DeviceInfo;
 
 
 public class SettingsActivity extends Activity {
+
+    EditText mEtXoThermPath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
+
+        getView();
+        loadSettings();
     }
 
+    public void getView(){
+        mEtXoThermPath = (EditText) findViewById(R.id.etXO_THERMPath);
+    }
+
+    public void loadSettings(){
+        mEtXoThermPath.setText(DeviceInfo.getXoThermPath());
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -40,6 +57,10 @@ public class SettingsActivity extends Activity {
     }
 
     public void mOnClickSaveSettings(View v) {
+        String node = mEtXoThermPath.getText().toString();
+
+        Preference pref = Preference.getInstance(this, Preference.PREF_SETTINGS);
+        pref.put("XoThermPath", node);
         finish();
     }
 

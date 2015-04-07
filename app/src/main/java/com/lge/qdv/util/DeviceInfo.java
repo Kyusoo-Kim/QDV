@@ -176,24 +176,35 @@ public class DeviceInfo {
         }
     }
 
+    public static String getXoThermPath() {
+        Preference pref = Preference.getInstance(InfoActivity.mContext, Preference.PREF_SETTINGS);
+
+        String pathXoTherm = "";
+        if(Build.MODEL.contains("F460")){
+            pathXoTherm = pref.get("XoThermPath", "/sys/class/hwmon/hwmon0/device/xo_therm");
+        } else if(Build.MODEL.contains("F510")){
+            pathXoTherm = pref.get("XoThermPath","/sys/devices/virtual/thermal/thermal_zone20/temp");
+        } else if(Build.MODEL.contains("F500")){
+            pathXoTherm = pref.get("XoThermPath","/sys/class/hwmon/hwmon2/device/xo_therm");
+        } else {
+            pathXoTherm = pref.get("XoThermPath","");
+        }
+        return pathXoTherm;
+    }
+
     public void readThermalInfo() {
         byte[] buffer = new byte[1024];
         int count = 0;
         mXoTherm = 0;
         int start = 0, end = 0;
 
-        String nodeXoTherm = "";
+        Preference pref = Preference.getInstance(InfoActivity.mContext, Preference.PREF_SETTINGS);
 
-        if(Build.MODEL.contains("F460")){
-            nodeXoTherm = "/sys/class/hwmon/hwmon0/device/xo_therm";
-        } else if(Build.MODEL.contains("F510")){
-            nodeXoTherm = "/sys/devices/virtual/thermal/thermal_zone20/temp";
-        } else if(Build.MODEL.contains("F500")){
-            nodeXoTherm = "/sys/class/hwmon/hwmon2/device/xo_therm";
-        }
+
+        String pathXoTherm = getXoThermPath();
 
         try {
-            FileInputStream is = new FileInputStream(nodeXoTherm);
+            FileInputStream is = new FileInputStream(pathXoTherm);
             int len = is.read(buffer);
             is.close();
             final int BUFLEN = buffer.length;
