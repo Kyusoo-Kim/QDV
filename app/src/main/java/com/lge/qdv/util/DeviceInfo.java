@@ -180,13 +180,16 @@ public class DeviceInfo {
         Preference pref = Preference.getInstance(InfoActivity.mContext, Preference.PREF_SETTINGS);
 
         String pathXoTherm = "";
-        if(Build.MODEL.contains("F460")){
-            pathXoTherm = pref.get("XoThermPath", "/sys/class/hwmon/hwmon0/device/xo_therm");
-        } else if(Build.MODEL.contains("F510")){
-            pathXoTherm = pref.get("XoThermPath","/sys/devices/virtual/thermal/thermal_zone20/temp");
-        } else if(Build.MODEL.contains("F500")){
-            pathXoTherm = pref.get("XoThermPath","/sys/class/hwmon/hwmon2/device/xo_therm");
-        } else {
+        if(Build.PRODUCT.contains("g3")){
+            pathXoTherm = pref.get("XoThermPath", IQDV.XO_THERM_PATH_G3);
+        } else if(Build.PRODUCT.contains("tiger6")){
+            pathXoTherm = pref.get("XoThermPath", IQDV.XO_THERM_PATH_TIGER6);
+        } else if(Build.PRODUCT.contains("z2")){
+            pathXoTherm = pref.get("XoThermPath", IQDV.XO_THERM_PATH_Z2);
+        } else if (Build.PRODUCT.contains("p1")){
+            pathXoTherm = pref.get("XoThermPath", IQDV.XO_THERM_PATH_P1);
+        }
+        else {
             pathXoTherm = pref.get("XoThermPath","");
         }
         return pathXoTherm;

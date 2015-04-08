@@ -52,16 +52,9 @@ public class InfoActivity extends Activity {
                     mProgressDialog.dismiss();
                     break;
                 case IQDV.MSG_UPDATE_DEVICE_INFO:
+                    updateDeviceInfo();
 
-                    DeviceInfoDiff diff = mDeviceInfo.getDiff(mPrevDeviceInfo);
 
-                    mTvTimeInfo.setText(TimeUtils.getDateTime(mDeviceInfo.getTimeStamp()) + "(" + TimeUtils.getTimeUnit(diff.dTimeStamp) + ")" );
-                    mTvMemFreeCached.setText("MemFree:" + mDeviceInfo.getMemFree()/1024 + "(" + diff.dMemFree/1024 + "), Cached:" + mDeviceInfo.getCached()/1024 + "(" + diff.dCached/1024 + ")");
-                    mTvFreeMem.setText("Free Memory:" + (mDeviceInfo.getMemFree()/1024 + mDeviceInfo.getCached()/1024) +  "(" + diff.dFreeMem/1024 + ")");
-                    mTvXoTherm.setText("XO_THERM:" + mDeviceInfo.getXoTherm() + "(" + diff.dXoTherm + ")");
-
-                    if(mDeviceInfo.getLMK() >= 0)
-                        mTvLMK.setText("LMK:" + mDeviceInfo.getLMK() + "(" + diff.dLMK + ")");
 
 
                     break;
@@ -78,8 +71,7 @@ public class InfoActivity extends Activity {
         mContext = getApplicationContext();
         getView();
         getPrevDeviceInfo();
-        updateDeviceInfo();
-
+        getDeviceInfo();
     }
 
 
@@ -130,7 +122,7 @@ public class InfoActivity extends Activity {
 
     }
 
-    private void updateDeviceInfo(){
+    private void getDeviceInfo(){
         mProgressDialog = mProgressDialog.show(InfoActivity.this, "Working", "Wait...");
         launchThreadDeviceInfo();
     }
@@ -140,17 +132,45 @@ public class InfoActivity extends Activity {
             @Override
             public void run() {
                 mDeviceInfo = new DeviceInfo(mHandler);
+                mHandler.sendEmptyMessage(IQDV.MSG_UPDATE_DEVICE_INFO);
+                mHandler.sendEmptyMessage(IQDV.MSG_CLOSE_DIALOG);
 
                 DeviceInfoDiff diff = mDeviceInfo.getDiff(mPrevDeviceInfo);
                 Log.d(IQDV.TAG, mDeviceInfo.toString(mPrevDeviceInfo));
                 saveInfo(diff);
-
-                mHandler.sendEmptyMessage(IQDV.MSG_UPDATE_DEVICE_INFO);
-                mHandler.sendEmptyMessage(IQDV.MSG_CLOSE_DIALOG);
             }
         });
 
         t.start();
+    }
+
+    private void updateDeviceInfo(){
+        DeviceInfoDiff diff = mDeviceInfo.getDiff(mPrevDeviceInfo);
+        String strTimeInfo = null, strMemFreeCached = null, strFreeMem = null, strXoTherm = null, strLMK = null;
+        if(mPrevDeviceInfo.getTimeStamp() == 0){
+            strTimeInfo = TimeUtils.getDateTime(mDeviceInfo.getTimeStamp());
+            strMemFreeCached = "MemFree:" + mDeviceInfo.getMemFree()/1024 + ", Cached:" + mDeviceInfo.getCached()/1024;
+            strFreeMem =  "Free Memory:" + (mDeviceInfo.getMemFree()/1024 + mDeviceInfo.getCached()/1024);
+            strXoTherm = "XO_THERM:" + mDeviceInfo.getXoTherm();
+            if(mDeviceInfo.getLMK() >= 0)
+                strLMK = "LMK:" + mDeviceInfo.getLMK();
+
+        } else {
+            strTimeInfo = TimeUtils.getDateTime(mDeviceInfo.getTimeStamp()) + "(" + TimeUtils.getTimeUnit(diff.dTimeStamp) + ")";
+            strMemFreeCached = "MemFree:" + mDeviceInfo.getMemFree()/1024 + "(" + diff.dMemFree/1024 + "), Cached:" + mDeviceInfo.getCached()/1024 + "(" + diff.dCached/1024 + ")";
+            strFreeMem =  "Free Memory:" + (mDeviceInfo.getMemFree()/1024 + mDeviceInfo.getCached()/1024) +  "(" + diff.dFreeMem/1024 + ")";
+            strXoTherm = "XO_THERM:" + mDeviceInfo.getXoTherm() + "(" + diff.dXoTherm + ")";
+            if(mDeviceInfo.getLMK() >= 0)
+                strLMK = "LMK:" + mDeviceInfo.getLMK() + "(" + diff.dLMK + ")";
+        }
+
+        mTvTimeInfo.setText(strTimeInfo);
+        mTvMemFreeCached.setText(strMemFreeCached);
+        mTvFreeMem.setText(strFreeMem);
+        mTvXoTherm.setText(strXoTherm);
+
+        if(strLMK != null)
+            mTvLMK.setText(strLMK);
     }
 
     public void saveInfo(DeviceInfoDiff diff){
@@ -171,13 +191,31 @@ public class InfoActivity extends Activity {
             FileWriter fw = new FileWriter(IQDV.QDV_DATA_FILE_PATH, true);
             out = new PrintWriter(new BufferedWriter(fw));
 
+            String strTimeInfo = null, strMemFreeCached = null, strFreeMem = null, strXoTherm = null, strLMK = null;
+            if(mPrevDeviceInfo.getTimeStamp() == 0){
+                strTimeInfo = TimeUtils.getDateTime(mDeviceInfo.getTimeStamp());
+                strMemFreeCached = "MemFree:" + mDeviceInfo.getMemFree()/1024 + ", Cached:" + mDeviceInfo.getCached()/1024;
+                strFreeMem =  "Free Memory:" + (mDeviceInfo.getMemFree()/1024 + mDeviceInfo.getCached()/1024);
+                strXoTherm = "XO_THERM:" + mDeviceInfo.getXoTherm();
+                if(mDeviceInfo.getLMK() >= 0)
+                    strLMK = "LMK:" + mDeviceInfo.getLMK();
+
+            } else {
+                strTimeInfo = TimeUtils.getDateTime(mDeviceInfo.getTimeStamp()) + "(" + TimeUtils.getTimeUnit(diff.dTimeStamp) + ")";
+                strMemFreeCached = "MemFree:" + mDeviceInfo.getMemFree()/1024 + "(" + diff.dMemFree/1024 + "), Cached:" + mDeviceInfo.getCached()/1024 + "(" + diff.dCached/1024 + ")";
+                strFreeMem =  "Free Memory:" + (mDeviceInfo.getMemFree()/1024 + mDeviceInfo.getCached()/1024) +  "(" + diff.dFreeMem/1024 + ")";
+                strXoTherm = "XO_THERM:" + mDeviceInfo.getXoTherm() + "(" + diff.dXoTherm + ")";
+                if(mDeviceInfo.getLMK() >= 0)
+                    strLMK = "LMK:" + mDeviceInfo.getLMK() + "(" + diff.dLMK + ")";
+            }
+
             out.println("#");
-            out.println(TimeUtils.getDateTime(mDeviceInfo.getTimeStamp()) + "(" + TimeUtils.getTimeUnit(diff.dTimeStamp) + ")" );
-            out.println("MemFree:" + mDeviceInfo.getMemFree()/1024 + "(" + diff.dMemFree/1024 + "), Cached:" + mDeviceInfo.getCached()/1024 + "(" + diff.dCached/1024 + ")");
-            out.println("Free Memory:" + (mDeviceInfo.getMemFree()/1024 + mDeviceInfo.getCached()/1024) +  "(" + diff.dFreeMem/1024 + ")");
-            out.println("XO_THERM:" + mDeviceInfo.getXoTherm() + "(" + diff.dXoTherm + ")");
-            if(mDeviceInfo.getLMK() >= 0)
-                out.println("LMK:" + mDeviceInfo.getLMK() + "(" + diff.dLMK + ")");
+            out.println(strTimeInfo);
+            out.println(strMemFreeCached);
+            out.println(strFreeMem);
+            out.println(strXoTherm);
+            if(strLMK != null)
+                out.println(strLMK);
             out.println("$");
 
         } catch(IOException ioe) {
